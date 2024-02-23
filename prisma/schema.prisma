@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product{
+  id Int @id @default(autoincrement())
+  name String
+  price Decimal @db.Money
+  quantity Int 
+  imgUrl String @map("img_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryId Int @map("category_id")
+
+  carts CartProduct[]
+
+  @@map("products")
+}
+
+model User{
+	id Int @id @default(autoincrement())
+	email String @unique
+	name String 
+	password String
+	role Role @default(USER)
+
+	createdAt DateTime @default(now()) @map("created_at")
+	updatedAt DateTime  @updatedAt @map("updated_at")
+
+	token Token?
+  orders Order[]
+
+	@@map("users")
+}
+
+model Token {
+  id Int @id @default(autoincrement())
+  refreshToken String @map("refresh_token")
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int @unique
+
+  @@map("tokens")
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+  products CartProduct[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  orders Order[]
+  
+  @@map("carts")
+
+}
+
+model CartProduct {
+  id Int @id @default(autoincrement())
+
+  cart Cart  @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cartId Int  @map("cart_id")
+
+  product Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId Int  @map("product_id")
+
+  quantity Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+	@@map("cart_products")
+}
+
+model Order{
+  id Int @id @default(autoincrement())
+
+  user User @relation(fields: [userId] , references: [id], onDelete: Cascade ,onUpdate: Cascade )
+  userId Int @map("user_id")
+
+  cart Cart @relation(fields: [cartId] , references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cartId Int @map("cart_id")
+
+  status Status @default(WAITING)
+
+  message String @default("Заказ оформлен")
+
+  @@map("orders")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  WAITING
+  CONFIRMED
+  CANCELLED
+  REFUSED
+}

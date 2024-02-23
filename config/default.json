@@ -1,0 +1,6 @@
+{
+  "PORT": 5000,
+  "ACCESS_SECRET": "jwt secret",
+  "REFRESH_SECRET": "jwt  refresh secret",
+  "COOKIE_SECRET": "cookie secret"
+}
