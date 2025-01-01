@@ -40,6 +40,3 @@ main()
     console.log(e);
     process.exit(1);
   });
-
-// user1@mail.ru user
-// ct9ao@mail.ru admin
